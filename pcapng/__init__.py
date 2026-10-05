@@ -6,3 +6,5 @@
 
 from .scanner import FileScanner  # noqa
 from .writer import FileWriter  # noqa
+
+from .checker import CheckResult, ConsistencyIssue, check_file  # noqa
