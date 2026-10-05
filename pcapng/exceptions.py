@@ -68,3 +68,12 @@ class BadMagic(PcapngLoadError):
     """
 
     pass
+
+
+class StaleIndexError(PcapngLoadError):
+    """
+    A sidecar index does not match the pcapng file it was built for
+    (different size or content fingerprint). The index must be rebuilt.
+    """
+
+    pass
