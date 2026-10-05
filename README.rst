@@ -146,8 +146,41 @@ https://github.com/pcapng/pcapng/
 Contributions are welcome, please contact me if you're planning to do
 some big change, so that we can sort out the best way to integrate it.
 
-Or even better, open an issue so the whole world can participate in
+Or even better, open an issue so that the whole world can participate in
 the discussion :)
+
+
+Metadata sanitization
+=====================
+
+Use :class:`pcapng.MetadataSanitizer` to remove or replace metadata
+without changing packet payloads. The default rules remove host/device
+names, operating-system descriptions, option comments and Name
+Resolution records while retaining link type, snap length, timestamp
+resolution and interface references.
+
+Unknown blocks, options and NRB records are never guessed. They are kept
+or dropped according to the supplied policy and are included in the
+result report:
+
+.. code-block:: python
+
+    import io
+    from pcapng import DELETE, DROP, KEEP, MetadataSanitizer
+    from pcapng.constants.block_types import BLK_INTERFACE
+
+    sanitizer = MetadataSanitizer(
+        rules={BLK_INTERFACE: {"if_hardware": DELETE}},
+        unknown_options=DROP,
+        unknown_blocks=KEEP,
+        unknown_records=DROP,
+    )
+    with open('capture.pcapng', 'rb') as src, \
+            open('sanitized.pcapng', 'wb') as dst:
+        report = sanitizer.sanitize(src, dst)
+
+The destination stream is not touched until the complete output has been
+generated and rescanned successfully.
 
 
 Pcap-ng write support
