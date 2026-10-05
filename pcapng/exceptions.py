@@ -68,3 +68,28 @@ class BadMagic(PcapngLoadError):
     """
 
     pass
+
+
+class PcapngIndexError(PcapngException):
+    """Base class for errors related to sidecar packet indexes."""
+
+    pass
+
+
+class InvalidIndexError(PcapngIndexError):
+    """
+    The sidecar index is malformed or internally inconsistent and cannot
+    be used (it should be rebuilt).
+    """
+
+    pass
+
+
+class StaleIndexError(PcapngIndexError):
+    """
+    The sidecar index does not match the current pcapng file contents
+    (the file was replaced or rewritten since the index was built).
+    Using it could return packets from the wrong file, so it is rejected.
+    """
+
+    pass

@@ -136,6 +136,37 @@ Have a look at the blocks documentation to see what they do; also, the
 ``examples`` directory contains some example scripts using the library.
 
 
+Random access with a sidecar index
+==================================
+
+``FileScanner`` always scans a capture from the beginning.  For large
+files, :mod:`pcapng.index` can build a *sidecar index* recording every
+packet block's file offset together with the section/interface context
+needed to resume parsing at that offset.  Packet payloads are not stored
+in the index.
+
+The index is bound to the file size and a content fingerprint (and each
+recorded block carries its own digest), so a replaced or same-length
+rewritten capture is rejected instead of silently returning the wrong
+packet.  Files containing sections with different byte orders, multiple
+interfaces, or unknown blocks are handled.
+
+.. code-block:: python
+
+    from pcapng.index import build_index_file, IndexedReader
+
+    build_index_file("capture.pcapng")  # writes capture.pcapng.pxidx
+
+    with IndexedReader.open_path("capture.pcapng") as reader:
+        packet = reader[-1]                       # a single packet
+        for packet in reader.read_range(1000, 1050):
+            ...
+
+Reading a range seeks directly to the target packets; the only extra
+reads are the (small) section header / interface description blocks
+required to interpret them.
+
+
 Hacking
 =======
 
