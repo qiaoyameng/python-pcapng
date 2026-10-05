@@ -418,7 +418,7 @@ class PacketBytes(StructField):
         return read_bytes_padded(stream, length)
 
     def encode(self, packet, stream, endianness=None):
-        if not packet:
+        if packet is None:
             raise ValueError("Packet invalid")
         write_bytes_padded(stream, packet)
 

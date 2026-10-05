@@ -12,6 +12,7 @@ better access to decoded information, ...
 
 import io
 import itertools
+from fractions import Fraction
 
 from pcapng import strictness as strictness
 from pcapng.constants import link_types
@@ -28,7 +29,10 @@ from pcapng.structs import (
     write_bytes_padded,
     write_int,
 )
-from pcapng.utils import unpack_timestamp_resolution
+from pcapng.utils import (
+    unpack_timestamp_resolution,
+    unpack_timestamp_resolution_exact,
+)
 
 KNOWN_BLOCKS = {}
 
@@ -278,7 +282,7 @@ class InterfaceDescription(SectionMemberBlock):
                     Option(6, "if_MACaddr", "macaddr"),
                     Option(7, "if_EUIaddr", "euiaddr"),
                     Option(8, "if_speed", "u64"),
-                    Option(9, "if_tsresol"),  # Just keep the raw data
+                    Option(9, "if_tsresol", "bytes"),  # Just keep the raw data
                     Option(10, "if_tzone", "u32"),
                     Option(11, "if_filter", "type+bytes"),
                     Option(12, "if_os", "string"),
@@ -314,6 +318,14 @@ class InterfaceDescription(SectionMemberBlock):
         return 1e-6
 
     @property
+    def timestamp_resolution_exact(self):
+        if "if_tsresol" in self.options:
+            return unpack_timestamp_resolution_exact(
+                self.options["if_tsresol"]
+            )
+        return Fraction(1, 1000000)
+
+    @property
     def statistics(self):
         # todo: ensure we always have an interface id -> how??
         return self.section.interface_stats.get(self.interface_id)
@@ -335,11 +347,19 @@ class BlockWithTimestampMixin(object):
     __slots__ = []
 
     @property
+    def timestamp_ticks(self):
+        return (self.timestamp_high << 32) + self.timestamp_low
+
+    @property
+    def timestamp_exact(self):
+        timestamp = self.timestamp_ticks * self.interface.timestamp_resolution_exact
+        if "if_tsoffset" in self.interface.options:
+            timestamp += self.interface.options["if_tsoffset"]
+        return timestamp
+
+    @property
     def timestamp(self):
-        # First, get the accuracy from the ts_resol option
-        return (
-            (self.timestamp_high << 32) + self.timestamp_low
-        ) * self.timestamp_resolution
+        return self.timestamp_ticks * self.timestamp_resolution
 
     @property
     def timestamp_resolution(self):

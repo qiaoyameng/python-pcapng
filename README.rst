@@ -135,6 +135,25 @@ Basic usage is as simple as:
 Have a look at the blocks documentation to see what they do; also, the
 ``examples`` directory contains some example scripts using the library.
 
+Merging captures
+----------------
+
+Multiple seekable pcap-ng files can be merged into one timestamped timeline.
+The caller must explicitly choose whether Simple Packet Blocks, which do not
+contain timestamps, are rejected or written in separate sections:
+
+.. code-block:: python
+
+    from pcapng import PcapngMerger, SimplePacketAction
+
+    with open('capture-a.pcapng', 'rb') as first, \
+            open('capture-b.pcapng', 'rb') as second, \
+            open('merged.pcapng', 'wb') as output:
+        PcapngMerger(
+            [first, second],
+            simple_packets=SimplePacketAction.KEEP_SEPARATE,
+        ).write(output)
+
 
 Hacking
 =======

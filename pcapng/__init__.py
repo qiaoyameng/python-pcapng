@@ -5,4 +5,5 @@
 # ----------------------------------------------------------------------
 
 from .scanner import FileScanner  # noqa
+from .merger import PcapngMerger, SimplePacketAction, merge_pcapng  # noqa
 from .writer import FileWriter  # noqa

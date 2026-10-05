@@ -22,6 +22,12 @@ class PcapngDumpError(PcapngException):
     pass
 
 
+class PcapngMergeError(PcapngException):
+    """Indicate an error while merging pcapng files"""
+
+    pass
+
+
 class PcapngStrictnessError(PcapngException):
     """Indicate a condition about poorly formed pcapng files"""
 

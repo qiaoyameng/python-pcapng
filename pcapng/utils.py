@@ -1,6 +1,8 @@
 import socket
 import struct
 
+from fractions import Fraction
+
 
 def pack_ipv4(data):
     return socket.inet_aton(data)
@@ -65,6 +67,19 @@ def unpack_timestamp_resolution(data):
     base = 2 if (num >> 7 & 1) else 10
     exponent = num & 0b01111111
     return base ** (-exponent)
+
+
+def unpack_timestamp_resolution_exact(data):
+    """
+    Unpack a timestamp resolution as an exact :class:`fractions.Fraction`.
+    """
+    if len(data) != 1:
+        raise ValueError("Data must be exactly one byte")
+    num = data[0]
+    exponent = num & 0b01111111
+    if num >> 7 & 1:
+        return Fraction(1, 1 << exponent)
+    return Fraction(1, 10**exponent)
 
 
 def pack_timestamp_resolution(base, exponent):

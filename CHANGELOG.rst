@@ -1,6 +1,14 @@
 History
 #######
 
+Unreleased
+==========
+
+- Add multi-input pcap-ng timeline merging with independent interface mappings
+- Compare merged timestamps using exact rational time values
+- Require an explicit rejection or separate-section policy for Simple Packet
+  Blocks because they have no timestamps
+
 2.1.1
 =====
 
