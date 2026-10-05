@@ -587,9 +587,10 @@ def write_options(stream, options):
         return
 
     for key in options:
-        code = options._field_names[key]
+        code = options._resolve_name(key)
         values = options.get_all_raw(key)
-        if len(values) > 1 and not options.schema[code].multiple:
+        schema_item = options.schema.get(code)
+        if len(values) > 1 and schema_item is not None and not schema_item.multiple:
             strictness.problem(
                 "writing repeated option {} '{}' not permitted by pcapng spec".format(
                     code, options._get_name_alias(code)
@@ -778,11 +779,17 @@ class Options(Mapping):
     def get_raw(self, name):
         """Get raw value for the given option"""
         code = self._resolve_name(name)
+        if code not in self.schema:
+            # Unknown option code: values are stored raw already
+            return self.data[code][0]
         return self._encode_value(self.data[code][0], self.schema[code].ftype)
 
     def get_all_raw(self, name):
         """Get all raw values for the given option"""
         code = self._resolve_name(name)
+        if code not in self.schema:
+            # Unknown option code: values are stored raw already
+            return list(self.data[code])
         return [self._encode_value(x, self.schema[code].ftype) for x in self.data[code]]
 
     def iter_all_items(self):

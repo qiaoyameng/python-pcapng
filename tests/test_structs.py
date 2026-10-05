@@ -437,3 +437,21 @@ def test_unpack_dummy_packet():
             "names": ["v6.example.net"],
         },
     ]
+
+
+def test_write_options_with_unknown_codes():
+    # Options with codes not present in the schema must be written
+    # back verbatim (their values are stored raw)
+    from pcapng.structs import write_options
+
+    options = Options(
+        schema=[Option(2, "opt_test", "string")],
+        data=[(2, b"hello"), (999, b"\x01\x02\x03")],
+        endianness="<",
+    )
+    out = io.BytesIO()
+    write_options(out, options)
+
+    # The written data must be parseable and contain both options
+    parsed = read_options(io.BytesIO(out.getvalue()), "<")
+    assert parsed == [(2, b"hello"), (999, b"\x01\x02\x03")]

@@ -1,6 +1,16 @@
 History
 #######
 
+Unreleased
+==========
+
+- Add a configurable metadata sanitizer (``pcapng.sanitizer``) to strip
+  or replace host-identifying metadata (comments, OS / hardware
+  descriptions, interface names, name resolution records) from capture
+  files without touching the packet data.
+- Fix writing of options with codes not present in the block schema
+  (unknown options are now written back verbatim).
+
 2.1.1
 =====
 

@@ -68,3 +68,13 @@ class BadMagic(PcapngLoadError):
     """
 
     pass
+
+
+class SanitizeConfigError(PcapngException):
+    """
+    Exception used to indicate that a sanitizer configuration is
+    invalid, eg. because a rule attempts to modify structural
+    information required to correctly parse the packet data.
+    """
+
+    pass
